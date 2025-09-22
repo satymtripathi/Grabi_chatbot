@@ -85,9 +85,11 @@ eye_detector, focus_detector, illum_detector, refl_detector, complete_detector, 
 st.info("You can either upload an image or take a picture with your camera.")
 uploaded_file = st.file_uploader("Upload an eye image", type=["jpg", "jpeg", "png"])
 camera_file = st.camera_input("Or take a picture")
+if camera_file is not None:
+    st.session_state["last_captured"] = camera_file
 
 # Select which image to use
-img_file = uploaded_file if uploaded_file else camera_file
+img_file = uploaded_file if uploaded_file  else st.session_state.get("last_captured")
 
 if img_file:
     temp_dir = tempfile.gettempdir()
