@@ -1,0 +1,11 @@
+{
+  "status": "success",
+  "image_path": "C:\\Users\\satyam.tripathi\\Desktop\\Classification_eye_diseases\\AI\\Infection\\BEL-P39997_Honnurswamy Boya__Imaging_18_2_23 9_12 AM_002.JPG",
+  "timestamp": "2025-09-20T15:11:27.857479",
+  "overall_quality": "Not Assessed - No Eye",
+  "quality_pattern": null,
+  "recommendations": [
+    "Ensure eye is visible and centered in the image"
+  ],
+  "processing_time": 1.1597063541412354
+}

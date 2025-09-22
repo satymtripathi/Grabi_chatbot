@@ -1,0 +1,11 @@
+{
+  "status": "success",
+  "image_path": "C:\\Users\\satyam.tripathi\\Downloads\\02.49.36_07.JPG",
+  "timestamp": "2025-09-20T15:16:44.810649",
+  "overall_quality": "Not Assessed - No Eye",
+  "quality_pattern": null,
+  "recommendations": [
+    "Ensure eye is visible and centered in the image"
+  ],
+  "processing_time": 0.9770596027374268
+}

@@ -1,0 +1,11 @@
+{
+  "status": "success",
+  "image_path": "C:\\Users\\satyam.tripathi\\Desktop\\eye_seg_data\\dataset\\train\\images\\1_left_1_bmp.rf.33e4fc07ea10d1ded5738ad5aba421e9.jpg",
+  "timestamp": "2025-09-20T15:14:08.255054",
+  "overall_quality": "Not Assessed - Bad Lighting",
+  "quality_pattern": null,
+  "recommendations": [
+    "Ensure uniform lighting across the entire eye area"
+  ],
+  "processing_time": 0.9793429374694824
+}

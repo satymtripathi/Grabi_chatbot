@@ -1,0 +1,11 @@
+{
+  "status": "success",
+  "image_path": "C:\\Users\\satyam.tripathi\\Desktop\\Classification_eye_diseases\\AI\\Infection\\Telecommnad\\eye_image100.jpg",
+  "timestamp": "2025-09-20T15:12:37.797545",
+  "overall_quality": "Not Assessed - No Eye",
+  "quality_pattern": null,
+  "recommendations": [
+    "Ensure eye is visible and centered in the image"
+  ],
+  "processing_time": 0.5451047420501709
+}

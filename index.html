@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eye Quality Assessment</title>
+    <!-- Use Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container-bg {
+            background-image: radial-gradient(at 50% 50%, #d1d5db, #f3f4f6);
+        }
+        #results-container {
+            transition: opacity 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 md:p-8">
+
+    <div class="container-bg w-full max-w-4xl p-6 md:p-10 rounded-3xl shadow-2xl flex flex-col md:flex-row gap-8 md:gap-12">
+
+        <!-- Image Input & Preview Section -->
+        <div class="flex-1 space-y-6">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800">Analyze Eye Image</h1>
+            <p class="text-gray-600">Select an image file to check its quality.</p>
+
+            <div class="relative w-full aspect-video bg-gray-200 rounded-xl overflow-hidden shadow-inner flex items-center justify-center">
+                <img id="image-preview" src="https://placehold.co/800x600/e5e7eb/6b7280?text=Image+Preview" alt="Image Preview" class="w-full h-full object-cover transition-opacity duration-300">
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <label for="image-upload" class="flex-1 p-3 rounded-xl border border-gray-300 focus-within:ring-2 focus-within:ring-blue-500 transition-all cursor-pointer bg-white flex items-center justify-center">
+                    <span id="file-name" class="text-gray-500 truncate">Choose a file...</span>
+                    <input type="file" id="image-upload" accept="image/*" class="hidden">
+                </label>
+                <button id="analyze-button" class="bg-blue-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:bg-blue-700 transition-colors duration-300">
+                    Analyze Image
+                </button>
+            </div>
+        </div>
+
+        <!-- Analysis Results Section -->
+        <div class="flex-1 bg-white p-6 rounded-3xl shadow-xl flex flex-col space-y-6">
+            <div id="status-message" class="text-center font-medium text-gray-500 transition-all duration-300">Awaiting analysis...</div>
+            <div id="loading-spinner" class="hidden text-center">
+                <svg class="animate-spin h-8 w-8 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+            
+            <div id="results-container" class="space-y-6 opacity-0 hidden">
+                <!-- Overall Quality -->
+                <div class="p-4 rounded-xl shadow-md border-t-4" id="overall-quality-card">
+                    <h3 class="text-lg font-bold text-gray-700">Overall Quality:</h3>
+                    <p id="overall-quality" class="text-2xl font-extrabold mt-1"></p>
+                </div>
+                
+                <!-- Quality Pattern -->
+                <div class="p-4 bg-gray-50 rounded-xl shadow-sm border-l-4 border-gray-300">
+                    <h3 class="text-lg font-bold text-gray-700">Quality Pattern:</h3>
+                    <p id="quality-pattern" class="text-xl font-mono text-gray-600 mt-1"></p>
+                </div>
+
+                <!-- Recommendations -->
+                <div class="p-4 bg-gray-50 rounded-xl shadow-sm border-l-4 border-gray-300">
+                    <h3 class="text-lg font-bold text-gray-700">Recommendations:</h3>
+                    <ul id="recommendations-list" class="mt-2 text-gray-600 space-y-2">
+                        <!-- Recommendations will be added here dynamically -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const imageUploadInput = document.getElementById('image-upload');
+            const analyzeButton = document.getElementById('analyze-button');
+            const imagePreview = document.getElementById('image-preview');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const statusMessage = document.getElementById('status-message');
+            const resultsContainer = document.getElementById('results-container');
+            const overallQualityEl = document.getElementById('overall-quality');
+            const overallQualityCard = document.getElementById('overall-quality-card');
+            const qualityPatternEl = document.getElementById('quality-pattern');
+            const recommendationsList = document.getElementById('recommendations-list');
+            const fileNameSpan = document.getElementById('file-name');
+
+            imageUploadInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    fileNameSpan.textContent = file.name;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        imagePreview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            analyzeButton.addEventListener('click', async () => {
+                const file = imageUploadInput.files[0];
+                if (!file) {
+                    statusMessage.textContent = 'Please select a file to upload.';
+                    return;
+                }
+
+                // Show loading state
+                statusMessage.classList.add('hidden');
+                loadingSpinner.classList.remove('hidden');
+                resultsContainer.classList.add('opacity-0', 'hidden');
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                try {
+                    // Send the file to the server (running on http://127.0.0.1:5000)
+                    const response = await fetch('http://127.0.0.1:5000/analyze', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Server responded with status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    // Hide loading state
+                    loadingSpinner.classList.add('hidden');
+                    statusMessage.classList.remove('hidden');
+
+                    // Display results
+                    if (result.status === 'success') {
+                        statusMessage.textContent = `Analysis complete in ${result.processing_time}s`;
+                        
+                        overallQualityEl.textContent = result.overall_quality;
+                        overallQualityCard.className = 'p-4 rounded-xl shadow-md border-t-4'; // Reset classes
+                        if (result.overall_quality === 'Good Quality') {
+                            overallQualityCard.classList.add('border-green-500');
+                            overallQualityEl.classList.add('text-green-600');
+                        } else if (result.overall_quality === 'Usable Quality') {
+                            overallQualityCard.classList.add('border-yellow-500');
+                            overallQualityEl.classList.add('text-yellow-600');
+                        } else {
+                            overallQualityCard.classList.add('border-red-500');
+                            overallQualityEl.classList.add('text-red-600');
+                        }
+                        
+                        qualityPatternEl.textContent = result.quality_pattern;
+                        
+                        recommendationsList.innerHTML = '';
+                        if (result.recommendations.length > 0) {
+                            result.recommendations.forEach(rec => {
+                                const li = document.createElement('li');
+                                li.className = "flex items-start gap-2";
+                                li.innerHTML = `<svg class="w-5 h-5 text-gray-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 11.23a4 4 0 11-5.696-5.696L14.535 2.2a2 2 0 112.828 2.828l-5.656 5.657zM17.765 17.765a4 4 0 01-5.657-5.657L17.765 6.05a2 2 0 10-2.829-2.828L9.28 12.68a4 4 0 115.657 5.657z"></path></svg>
+                                                <span>${rec}</span>`;
+                                recommendationsList.appendChild(li);
+                            });
+                        } else {
+                            recommendationsList.innerHTML = '<li class="text-green-600">All quality checks passed!</li>';
+                        }
+                    } else {
+                        statusMessage.textContent = `Error: ${result.error || 'Unknown error'}`;
+                        overallQualityEl.textContent = 'Not Assessed';
+                        overallQualityCard.classList.add('border-red-500');
+                        overallQualityEl.classList.add('text-red-600');
+                        qualityPatternEl.textContent = 'NNNN';
+                        recommendationsList.innerHTML = `<li class="text-red-600">Please try a different image.</li>`;
+                    }
+                    
+                    // Show results container
+                    resultsContainer.classList.remove('hidden');
+                    setTimeout(() => resultsContainer.classList.remove('opacity-0'), 10);
+                } catch (error) {
+                    loadingSpinner.classList.add('hidden');
+                    statusMessage.classList.remove('hidden');
+                    statusMessage.textContent = `Error: Could not connect to the server. Please ensure the backend is running.`;
+                    console.error('Fetch error:', error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
