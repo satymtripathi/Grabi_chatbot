@@ -169,7 +169,7 @@ if img_file is not None:
         st.image(
             img_np,
             caption="Selected Image",
-            use_container_width=True,
+            use_column_width=True,
         )
 
     except Exception as e:
